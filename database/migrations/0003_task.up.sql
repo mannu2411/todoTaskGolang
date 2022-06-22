@@ -1,6 +1,6 @@
 CREATE TABLE tasks(
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    sessionID UUID,
+    email TEXT REFERENCES users(email),
     task TEXT,
     isComplete BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

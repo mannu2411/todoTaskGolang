@@ -29,7 +29,11 @@ func SignInUser(writer http.ResponseWriter, request *http.Request) {
 		log.Fatalf("failed to generate UUID: %v", err)
 	}
 	//id := uid.String()
-	sessionId, err := helper.CreateSession(creds.Email, expireAt)
+	sessionId, err := helper.GetSession(creds.Email)
+	if sessionId == "" {
+		sessionId, err = helper.CreateSession(creds.Email, expireAt)
+	}
+
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)
 		return

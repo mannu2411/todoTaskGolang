@@ -20,7 +20,14 @@ func GetTasks(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-	task, err := helper.GetAllTasks(sessionId)
+	email, err := helper.GetCreds(sessionId)
+	log.Printf(email)
+	if err != nil || email == "" {
+		writer.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	task, err := helper.GetAllTasks(email)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
@@ -30,5 +37,6 @@ func GetTasks(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	writer.Write(jsonData)
 }

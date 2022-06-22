@@ -27,9 +27,8 @@ func CreateSession(email string, end_at time.Time) (string, error) {
 	return sessionID, nil
 }
 
-/*
 func GetSession(email string) (string, error) {
-	SQL := `SELECT id FROM session WHERE email=$1;`
+	SQL := `SELECT id FROM session WHERE email=$1 AND end_at > CURRENT_TIMESTAMP;`
 	var sid string
 	err := database.Tutorial.Get(&sid, SQL, email)
 	if err != nil {
@@ -38,6 +37,17 @@ func GetSession(email string) (string, error) {
 	return sid, nil
 }
 
+func GetCreds(sessionId string) (string, error) {
+	SQL := `SELECT email FROM session WHERE id=$1 AND end_at > CURRENT_TIMESTAMP;`
+	var email string
+	err := database.Tutorial.Get(&email, SQL, sessionId)
+	if err != nil {
+		return "", err
+	}
+	return email, nil
+}
+
+/*
 func UpdateSession(end_at time.Time, id string) error {
 	//language=SQL
 	SQL := `UPDATE session SET end_at=$1 WHERE id=$2 RETURNING id;`

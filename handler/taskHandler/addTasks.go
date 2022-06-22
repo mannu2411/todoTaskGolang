@@ -21,12 +21,18 @@ func AddTask(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+	email, err := helper.GetCreds(sessionId)
+
+	if err != nil {
+		writer.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 	var addTask models.AddTask
 	err = json.NewDecoder(request.Body).Decode(&addTask)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 	}
-	taskID, err := helper.CreateTask(sessionId, addTask.Task)
+	taskID, err := helper.CreateTask(email, addTask.Task)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 	}

@@ -5,29 +5,32 @@ import (
 	"github.com/todoTask/models"
 )
 
-func CreateTask(sessionId, task string) (string, error) {
-	SQL := `INSERT INTO tasks(sessionid,task) VALUES ($1, $2) RETURNING id;`
+func CreateTask(email, task string) (string, error) {
+	SQL := `INSERT INTO tasks(email,task) VALUES ($1, $2) RETURNING id;`
 	var id string
-	err := database.Tutorial.Get(&id, SQL, sessionId, task)
+	err := database.Tutorial.Get(&id, SQL, email, task)
 	if err != nil {
 		return "", err
 	}
 	return id, err
 }
-func GetAllTasks(sessionId string) ([]models.AllTask, error) {
+func GetAllTasks(email string) ([]models.AllTask, error) {
 	// Not giving output when compared with sessionId
-	SQL := `SELECT sessionid, id, task, iscomplete, created_at FROM tasks WHERE archived_at IS NULL;`
+	SQL := `SELECT id, email, task, iscomplete, created_at FROM tasks WHERE archived_at IS NULL;`
 	var tasks []models.AllTask
 	rows, errRow := database.Tutorial.Queryx(SQL)
 
 	if errRow != nil {
 		return tasks, errRow
 	}
+	//log.Printf(email + " herk")
 	for rows.Next() {
 		var u models.AllTask
-		rows.Scan(&u.SessionID, &u.ID, &u.Task, &u.IsComplete, &u.CreatedAt)
-		if u.SessionID == sessionId {
+		rows.Scan(&u.ID, &u.Email, &u.Task, &u.IsComplete, &u.CreatedAt)
+
+		if u.Email == email {
 			tasks = append(tasks, u)
+			//log.Printf(u.Email)
 		}
 	}
 	return tasks, nil
