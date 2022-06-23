@@ -7,12 +7,11 @@ import (
 
 	"github.com/todoTask/database/helper"
 	"github.com/todoTask/models"
-	"github.com/todoTask/utilities"
 )
 
 func CompleteTask(writer http.ResponseWriter, request *http.Request) {
 
-	_, err, flag := utilities.MiddlewareAuth(writer, request)
+	/* _, err, flag := utilities.MiddlewareAuth(writer, request)
 
 	if err != nil {
 		writer.WriteHeader(http.StatusUnauthorized)
@@ -21,7 +20,8 @@ func CompleteTask(writer http.ResponseWriter, request *http.Request) {
 	if flag {
 		writer.WriteHeader(http.StatusUnauthorized)
 		return
-	}
+	} */
+
 	var completeTask models.Task
 
 	addErr := json.NewDecoder(request.Body).Decode(&completeTask)

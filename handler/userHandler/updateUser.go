@@ -9,31 +9,23 @@ import (
 	"github.com/todoTask/models"
 )
 
-func UpdateRow(writer http.ResponseWriter, request *http.Request) {
-	var update_user models.UpdateUser
-	decoder := json.NewDecoder(request.Body)
-	addErr := decoder.Decode(&update_user)
-	log.Printf(update_user.Name)
+func UpdateUser(writer http.ResponseWriter, request *http.Request) {
+	var updateUser models.UpdateUser
+	addErr := json.NewDecoder(request.Body).Decode(&updateUser)
 	if addErr != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	userID, err := helper.UpdateUser(update_user.Name, update_user.Email, update_user.ID)
+	userID, err := helper.UpdateUser(updateUser.Name, updateUser.Email, updateUser.ID)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	user, userErr := helper.GetUser(userID)
-	if userErr != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	jsonData, jsonErr := json.Marshal(user)
+	log.Printf("User: " + userID + " has been updated.")
+	jsonData, jsonErr := json.Marshal(updateUser)
 	if jsonErr != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 	writer.Write(jsonData)
 }

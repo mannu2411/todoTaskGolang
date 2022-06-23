@@ -2,28 +2,24 @@ package userHandler
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 
 	"github.com/todoTask/database/helper"
+	"github.com/todoTask/models"
 )
 
 func isErr(err error, typeErr string) bool {
 	return err.Error() == "pq: duplicate key value violates unique constraint "+typeErr
 }
 
-func Greet(writer http.ResponseWriter, request *http.Request) {
-	userID, err := helper.CreateUser("test1", "test1@test.com", "test1")
-	log.Printf(userID)
+func Test(writer http.ResponseWriter, request *http.Request) {
+	_, err := helper.CreateUser("test1", "test1@test.com", "test1")
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	user, userErr := helper.GetUser(userID)
-	if userErr != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+
+	var user = models.AddUser{"test1", "test1@test.com", "test1"}
 	jsonData, jsonErr := json.Marshal(user)
 	if jsonErr != nil {
 		writer.WriteHeader(http.StatusInternalServerError)

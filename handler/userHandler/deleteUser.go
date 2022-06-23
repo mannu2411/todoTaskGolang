@@ -9,31 +9,27 @@ import (
 	"github.com/todoTask/models"
 )
 
-func DeleteRow(writer http.ResponseWriter, request *http.Request) {
-	var delete_user models.UpdateUser
-	addErr := json.NewDecoder(request.Body).Decode(&delete_user)
-	log.Printf(delete_user.ID)
+func DeleteUser(writer http.ResponseWriter, request *http.Request) {
+
+	var deleteUser models.UpdateUser
+	addErr := json.NewDecoder(request.Body).Decode(&deleteUser)
 	if addErr != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
-	userID, err := helper.DeleteUser(delete_user.ID)
-	log.Printf(userID)
+	session := request.Header.Values("session_token")
+	sessionId := session[0]
+	err := helper.DeleteSession(sessionId)
+	userID, err := helper.DeleteUser(deleteUser.ID)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	user, userErr := helper.GetUser(userID)
-	if userErr != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-	jsonData, jsonErr := json.Marshal(user)
+	log.Printf("User: " + userID + "has been deleted")
+	jsonData, jsonErr := json.Marshal(deleteUser)
 	if jsonErr != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 	writer.Write(jsonData)
 }

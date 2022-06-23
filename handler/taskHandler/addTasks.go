@@ -7,11 +7,10 @@ import (
 
 	"github.com/todoTask/database/helper"
 	"github.com/todoTask/models"
-	"github.com/todoTask/utilities"
 )
 
 func AddTask(writer http.ResponseWriter, request *http.Request) {
-	sessionId, err, flag := utilities.MiddlewareAuth(writer, request)
+	/* sessionId, err, flag := utilities.MiddlewareAuth(writer, request)
 	//log.Printf(sessionId)
 	if err != nil {
 		writer.WriteHeader(http.StatusUnauthorized)
@@ -20,7 +19,9 @@ func AddTask(writer http.ResponseWriter, request *http.Request) {
 	if flag {
 		writer.WriteHeader(http.StatusUnauthorized)
 		return
-	}
+	} */
+	session := request.Header.Values("session_token")
+	sessionId := session[0]
 	email, err := helper.GetCreds(sessionId)
 
 	if err != nil {

@@ -19,22 +19,24 @@ func JsonFetch(user *models.User, writer http.ResponseWriter) http.ResponseWrite
 	return writer
 }
 
-func MiddlewareAuth(writer http.ResponseWriter, request *http.Request) (string, error, bool) {
-	session := request.Header.Values("session_token")
-	sessionId := session[0]
+func MiddlewareAuth(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		session := request.Header.Values("session_token")
+		sessionId := session[0]
 
-	exist, err := helper.SessionExist(sessionId)
-	if err != nil {
-		return "", err, true
-	}
-	if !exist {
-		return "", err, true
-	}
-	isExpired, err := helper.IsExpired(sessionId)
+		exist, err := helper.SessionExist(sessionId)
+		if err != nil {
+			writer.WriteHeader(http.StatusUnauthorized)
+		}
+		if !exist {
+			writer.WriteHeader(http.StatusUnauthorized)
+		}
+		isExpired, err := helper.IsExpired(sessionId)
 
-	if isExpired {
-		return "", err, true
-	}
-	log.Printf(sessionId)
-	return sessionId, nil, false
+		if isExpired {
+			writer.WriteHeader(http.StatusUnauthorized)
+		}
+		log.Printf("Session: " + sessionId + " has been created.")
+		next.ServeHTTP(writer, request)
+	})
 }
