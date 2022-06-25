@@ -47,16 +47,16 @@ func GetCreds(sessionId string) (string, error) {
 	return email, nil
 }
 
-/*func CloseSession(email string) error {
+func RefreshSession(expireAt time.Time, sessionId string) error {
 	//language=SQL
-	SQL := `UPDATE session SET end_at=CURRENT_TIMESTAMP WHERE email=$2 AND end_at > CURRENT_TIMESTAMP;`
+	SQL := `UPDATE session SET end_at=$1 WHERE id=$2;`
 	//var userID string
-	_, err := database.Tutorial.Queryx(SQL)
+	_, err := database.Tutorial.Exec(SQL, expireAt, sessionId)
 	if err != nil {
 		return err
 	}
 	return nil
-}*/
+}
 
 func IsExpired(id string) (bool, error) {
 	SQL := `SELECT end_at FROM session WHERE id=$1;`
@@ -85,7 +85,7 @@ func DeleteSession(uid string) error {
 	//language=SQL
 	SQL := `UPDATE session SET end_at=CURRENT_TIMESTAMP WHERE id=$1;`
 
-	_, err := database.Tutorial.Exec(SQL)
+	_, err := database.Tutorial.Exec(SQL, uid)
 	if err != nil {
 		return err
 	}

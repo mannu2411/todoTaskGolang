@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/todoTask/database/helper"
 	"github.com/todoTask/models"
@@ -41,6 +42,12 @@ func DeleteTask(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	expireAt := time.Now().Add(360 * time.Second)
+	session := request.Header.Values("session_token")
+	sessionId := session[0]
+	err = helper.RefreshSession(expireAt, sessionId)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+	}
 	writer.Write(jsonData)
 }

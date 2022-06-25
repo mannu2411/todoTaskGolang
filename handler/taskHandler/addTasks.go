@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/todoTask/database/helper"
 	"github.com/todoTask/models"
@@ -34,6 +35,11 @@ func AddTask(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusInternalServerError)
 	}
 	taskID, err := helper.CreateTask(email, addTask.Task)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+	}
+	expireAt := time.Now().Add(360 * time.Second)
+	err = helper.RefreshSession(expireAt, sessionId)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 	}

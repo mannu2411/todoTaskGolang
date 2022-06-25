@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/todoTask/database/helper"
 )
@@ -38,6 +39,10 @@ func GetTasks(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	expireAt := time.Now().Add(360 * time.Second)
+	err = helper.RefreshSession(expireAt, sessionId)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+	}
 	writer.Write(jsonData)
 }
