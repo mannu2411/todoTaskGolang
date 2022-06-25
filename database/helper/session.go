@@ -85,8 +85,7 @@ func DeleteSession(uid string) error {
 	//language=SQL
 	SQL := `UPDATE session SET end_at=CURRENT_TIMESTAMP WHERE id=$1;`
 
-	//var taskID string
-	_, err := database.Tutorial.Queryx(SQL)
+	_, err := database.Tutorial.Exec(SQL)
 	if err != nil {
 		return err
 	}
