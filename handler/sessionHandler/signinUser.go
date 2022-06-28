@@ -1,6 +1,7 @@
 package sessionHandler
 
 import (
+	"database/sql"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -18,7 +19,9 @@ func SignInUser(writer http.ResponseWriter, request *http.Request) {
 		return
 	}
 	expectPass, err := helper.GetPass(creds.Email)
-
+	if err != nil && err == sql.ErrNoRows {
+		writer.WriteHeader(http.StatusBadRequest)
+	}
 	if err != nil || expectPass != creds.Pass {
 		writer.WriteHeader(http.StatusUnauthorized)
 	}
@@ -29,10 +32,15 @@ func SignInUser(writer http.ResponseWriter, request *http.Request) {
 		log.Fatalf("failed to generate UUID: %v", err)
 	}
 	//id := uid.String()
-	sessionId, err := helper.GetSession(creds.Email)
-	if sessionId == "" {
-		sessionId, err = helper.CreateSession(creds.Email, expireAt)
+	//sessionId, err := helper.GetSession(creds.Email)
+	//if sessionId == "" {
+	uid, err := helper.GetUserID(creds.Email)
+
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
 	}
+	sessionId, err := helper.CreateSession(uid, expireAt)
+	//}
 
 	if err != nil {
 		writer.WriteHeader(http.StatusBadRequest)

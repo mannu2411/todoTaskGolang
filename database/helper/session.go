@@ -18,7 +18,7 @@ func GetPass(email string) (string, error) {
 
 func CreateSession(email string, end_at time.Time) (string, error) {
 
-	SQL := `INSERT INTO session( email, end_at) VALUES ($1, $2) RETURNING id;`
+	SQL := `INSERT INTO session( user_id, end_at) VALUES ($1, $2) RETURNING id;`
 	var sessionID string
 	err := database.Tutorial.Get(&sessionID, SQL, email, end_at)
 	if err != nil {
@@ -27,10 +27,10 @@ func CreateSession(email string, end_at time.Time) (string, error) {
 	return sessionID, nil
 }
 
-func GetSession(email string) (string, error) {
-	SQL := `SELECT id FROM session WHERE email=$1 AND end_at > CURRENT_TIMESTAMP;`
+func GetSession(user_id string) (string, error) {
+	SQL := `SELECT id FROM session WHERE user_id=$1 AND end_at > CURRENT_TIMESTAMP;`
 	var sid string
-	err := database.Tutorial.Get(&sid, SQL, email)
+	err := database.Tutorial.Get(&sid, SQL, user_id)
 	if err != nil {
 		return "", err
 	}
@@ -38,13 +38,14 @@ func GetSession(email string) (string, error) {
 }
 
 func GetCreds(sessionId string) (string, error) {
-	SQL := `SELECT email FROM session WHERE id=$1 AND end_at > CURRENT_TIMESTAMP;`
-	var email string
-	err := database.Tutorial.Get(&email, SQL, sessionId)
+	SQL := `SELECT user_id FROM session WHERE id=$1 AND end_at > CURRENT_TIMESTAMP;`
+	var user_id string
+	err := database.Tutorial.Get(&user_id, SQL, sessionId)
+	//log.Printf(user_id + "HERE")
 	if err != nil {
 		return "", err
 	}
-	return email, nil
+	return user_id, nil
 }
 
 func RefreshSession(expireAt time.Time, sessionId string) error {
@@ -58,10 +59,10 @@ func RefreshSession(expireAt time.Time, sessionId string) error {
 	return nil
 }
 
-func IsExpired(id string) (bool, error) {
+func SessionExist(sessionId string) (bool, error) {
 	SQL := `SELECT end_at FROM session WHERE id=$1;`
 	var expireAt time.Time
-	err := database.Tutorial.Get(&expireAt, SQL, id)
+	err := database.Tutorial.Get(&expireAt, SQL, sessionId)
 	if err != nil {
 		return true, err
 	}
@@ -71,19 +72,9 @@ func IsExpired(id string) (bool, error) {
 	return false, nil
 }
 
-func SessionExist(sessionId string) (bool, error) {
-	SQL := `SELECT email FROM session WHERE id=$1;`
-	var email string
-	err := database.Tutorial.Get(&email, SQL, sessionId)
-	if err != nil {
-		return false, err
-	}
-	return true, nil
-}
-
 func DeleteSession(uid string) error {
 	//language=SQL
-	SQL := `UPDATE session SET end_at=CURRENT_TIMESTAMP WHERE id=$1;`
+	SQL := `UPDATE session SET end_at=CURRENT_TIMESTAMP WHERE user_id=$1;`
 
 	_, err := database.Tutorial.Exec(SQL, uid)
 	if err != nil {

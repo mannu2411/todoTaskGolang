@@ -15,3 +15,13 @@ type User struct {
 }
 
 const ActiveUser string = "active_user"
+
+type Authentication struct {
+	Email string `json:"email"`
+	Pass  string `json:"pass"`
+}
+
+type Token struct {
+	Email       string `json:"email"`
+	TokenString string `json:"token"`
+}

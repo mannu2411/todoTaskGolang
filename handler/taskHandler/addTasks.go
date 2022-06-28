@@ -3,6 +3,8 @@ package taskHandler
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/todoTask/middlewareUtils"
+	"log"
 	"net/http"
 	"time"
 
@@ -11,34 +13,28 @@ import (
 )
 
 func AddTask(writer http.ResponseWriter, request *http.Request) {
-	/* sessionId, err, flag := utilities.MiddlewareAuth(writer, request)
-	//log.Printf(sessionId)
+
+	/*	userID, err := helper.GetCreds(sessionId)
+
+		if err != nil {
+			writer.WriteHeader(http.StatusUnauthorized)
+			return
+		}*/
+	userID := middlewareUtils.UserFromContext(request.Context()).ID
+	var addTask models.AddTask
+	err := json.NewDecoder(request.Body).Decode(&addTask)
 	if err != nil {
-		writer.WriteHeader(http.StatusUnauthorized)
-		return
+		writer.WriteHeader(http.StatusInternalServerError)
 	}
-	if flag {
-		writer.WriteHeader(http.StatusUnauthorized)
-		return
-	} */
+	taskID, err := helper.CreateTask(userID, addTask.Task)
+	if err != nil {
+		writer.WriteHeader(http.StatusInternalServerError)
+	}
+	log.Printf(taskID)
+	expireAt := time.Now().Add(360 * time.Second)
+
 	session := request.Header.Values("session_token")
 	sessionId := session[0]
-	email, err := helper.GetCreds(sessionId)
-
-	if err != nil {
-		writer.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	var addTask models.AddTask
-	err = json.NewDecoder(request.Body).Decode(&addTask)
-	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-	}
-	taskID, err := helper.CreateTask(email, addTask.Task)
-	if err != nil {
-		writer.WriteHeader(http.StatusInternalServerError)
-	}
-	expireAt := time.Now().Add(360 * time.Second)
 	err = helper.RefreshSession(expireAt, sessionId)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)

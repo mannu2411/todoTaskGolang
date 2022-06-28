@@ -2,7 +2,6 @@ package helper
 
 import (
 	"database/sql"
-
 	"github.com/todoTask/database"
 	"github.com/todoTask/models"
 )
@@ -36,6 +35,7 @@ func GetAllUser() ([]models.User, error) {
 	// language=SQL
 	SQL := `SELECT id, name, email, created_at, archived_at FROM users WHERE archived_at IS NULL;`
 	var users []models.User
+	// use db.select instead of Queryx
 	rows, errRow := database.Tutorial.Queryx(SQL)
 	if errRow != nil {
 		return users, errRow
@@ -69,4 +69,31 @@ func DeleteUser(uid string) (string, error) {
 		return "", err
 	}
 	return userID, nil
+}
+func GetUserID(email string) (string, error) {
+	//language-SQL
+	SQL := `SELECT id FROM users WHERE email=$1`
+	var uid string
+	err := database.Tutorial.Get(&uid, SQL, email)
+	if err != nil {
+		return "", err
+	}
+	return uid, nil
+}
+func GetUserDetails(uid string) (models.User, error) {
+	SQL := `SELECT id, name, email, created_at, archived_at FROM users WHERE archived_at IS NULL;`
+	var users models.User
+	// use db.select instead of Queryx
+	rows, errRow := database.Tutorial.Queryx(SQL)
+	if errRow != nil {
+		return users, errRow
+	}
+	for rows.Next() {
+		var u models.User
+		rows.Scan(&u.ID, &u.Name, &u.Email, &u.CreatedAt, &u.ArchivedAt)
+		if u.ID == uid {
+			users = u
+		}
+	}
+	return users, nil
 }

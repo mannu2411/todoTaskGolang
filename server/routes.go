@@ -23,14 +23,15 @@ func SetupRoutes() *Server {
 		api.Get("/all-users", userHandler.AllUsers)*/
 
 		api.Route("/Auth", func(auth chi.Router) {
-			auth.Post("/signin", sessionHandler.SignInUser)
-			auth.Post("/signup", userHandler.AddUser)
+			auth.Post("/sign-in", sessionHandler.SignInUser)
+			auth.Post("/sign-up", userHandler.AddUser)
 		})
 
 		api.Route("/", func(r chi.Router) {
 			r.Use(middlewareUtils.AuthMiddleware)
-
-			r.Delete("/signout", sessionHandler.SignOut)
+			r.Use(middlewareUtils.JWTAuthMiddleware)
+			r.Use(middlewareUtils.GetUserContext)
+			r.Delete("/sign-out", sessionHandler.SignOut)
 
 			r.Route("/user", func(user chi.Router) {
 				user.Put("/update-user", userHandler.UpdateUser)

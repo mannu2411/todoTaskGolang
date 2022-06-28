@@ -2,6 +2,7 @@ package userHandler
 
 import (
 	"encoding/json"
+	"github.com/todoTask/middlewareUtils"
 	"log"
 	"net/http"
 	"time"
@@ -17,7 +18,8 @@ func UpdateUser(writer http.ResponseWriter, request *http.Request) {
 		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	userID, err := helper.UpdateUser(updateUser.Name, updateUser.Email, updateUser.ID)
+	id := middlewareUtils.UserFromContext(request.Context()).ID
+	userID, err := helper.UpdateUser(updateUser.Name, updateUser.Email, id)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return

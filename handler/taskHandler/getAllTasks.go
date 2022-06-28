@@ -2,7 +2,7 @@ package taskHandler
 
 import (
 	"encoding/json"
-	"log"
+	"github.com/todoTask/middlewareUtils"
 	"net/http"
 	"time"
 
@@ -10,26 +10,17 @@ import (
 )
 
 func GetTasks(writer http.ResponseWriter, request *http.Request) {
-	/* sessionId, err, flag := utilities.MiddlewareAuth(writer, request)
-	log.Printf(sessionId)
-	if err != nil {
-		writer.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-	if flag {
-		writer.WriteHeader(http.StatusUnauthorized)
-		return
-	} */
 	session := request.Header.Values("session_token")
 	sessionId := session[0]
-	email, err := helper.GetCreds(sessionId)
+	/*email, err := helper.GetCreds(sessionId)
 	log.Printf(email)
 	if err != nil || email == "" {
 		writer.WriteHeader(http.StatusUnauthorized)
 		return
 	}
-
-	task, err := helper.GetAllTasks(email)
+	*/
+	userID := middlewareUtils.UserFromContext(request.Context()).ID
+	task, err := helper.GetAllTasks(userID)
 	if err != nil {
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
